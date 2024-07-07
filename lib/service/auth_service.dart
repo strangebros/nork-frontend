@@ -8,7 +8,6 @@ class AuthService extends ChangeNotifier {
   final SharedPreferences prefs;
 
   final secureStorage = const FlutterSecureStorage();
-  final dio = DioInstance.dio;
 
   AuthService({required this.prefs});
 
@@ -26,7 +25,7 @@ class AuthService extends ChangeNotifier {
       {required BuildContext context,
       required String email,
       required String password}) async {
-    Response response = await dio
+    Response response = await DioInstance.dio
         .post("/members/login", data: {email: email, password: password});
 
     if (response.data["status"] != 200) {

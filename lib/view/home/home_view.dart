@@ -12,10 +12,10 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("로그인 후 페이지"),
+        title: const Text("로그인 후 페이지"),
       ),
       body: Center(
-        child: Text("로그인 후 페이지"),
+        child: const Text("로그인 후 페이지"),
       ),
     );
   }

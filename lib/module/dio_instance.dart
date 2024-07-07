@@ -25,7 +25,7 @@ class DioInstance {
 
   Dio _buildDio() {
     BaseOptions options = BaseOptions(
-      baseUrl: 'localhost:8080', // 기본 URL 설정
+      baseUrl: 'http://localhost:8080', // 기본 URL 설정
     );
 
     Dio dio = Dio(options);
