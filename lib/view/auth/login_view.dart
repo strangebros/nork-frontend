@@ -1,6 +1,10 @@
 import 'package:sizer/sizer.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:nork/service/auth_service.dart';
 import 'package:nork/component/text_field.dart';
+import 'package:nork/view/auth/signup_view.dart';
+import 'package:swipeable_page_route/swipeable_page_route.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -44,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
                     cursorColor: Colors.white,
                     enabled: true,
                     fontSize: 10.sp,
-                    hintText: "아이디 입력",
+                    hintText: "아이디",
                     obscureText: false,
                     textColor: Colors.white),
                 SizedBox(height: 1.h),
@@ -55,28 +59,38 @@ class _LoginViewState extends State<LoginView> {
                     cursorColor: Colors.white,
                     enabled: true,
                     fontSize: 10.sp,
-                    hintText: "비밀번호 입력",
+                    hintText: "비밀번호",
                     obscureText: true,
                     textColor: Colors.white),
                 SizedBox(height: 1.h),
-                Card(
-                  margin: EdgeInsets.zero,
-                  color: const Color.fromARGB(255, 82, 114, 255),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  elevation: 0,
-                  child: SizedBox(
-                    height: 5.5.h,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          "로그인",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () {
+                    Provider.of<AuthService>(context, listen: false).login(
+                        context: context,
+                        email: idController.text,
+                        password: pwController.text);
+                  },
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    color: const Color.fromARGB(255, 82, 114, 255),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                    child: SizedBox(
+                      height: 5.5.h,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "로그인",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -85,6 +99,12 @@ class _LoginViewState extends State<LoginView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                        Navigator.of(context).push(SwipeablePageRoute(
+                          builder: (BuildContext context) => const SignupView(),
+                        ));
+                      },
                       child: Text(
                         "새로운 계정 만들기",
                         style: TextStyle(color: Colors.white, fontSize: 9.sp),

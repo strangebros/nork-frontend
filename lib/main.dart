@@ -7,6 +7,7 @@ import 'package:nork/module/dio_instance.dart';
 import 'package:nork/view/auth/login_view.dart';
 import 'package:nork/service/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 void main() async {
@@ -27,17 +28,33 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final AuthService authService;
 
   const MyApp({super.key, required this.authService});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Sizer(
       builder: (context, orientation, deviceType) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          // 지원하는 로케일 목록
+          supportedLocales: const [
+            Locale('en', ''), // 영어
+            Locale('ko', ''), // 한국어
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          locale: const Locale('ko'), // 앱의 기본 로케일을 한국어로 설정
           builder: (context, child) {
             final scale = MediaQuery.of(context)
                 .textScaler
@@ -56,7 +73,7 @@ class MyApp extends StatelessWidget {
           ),
           themeMode: ThemeMode.dark,
           home: FutureBuilder<bool>(
-              future: authService.isLogined(),
+              future: Provider.of<AuthService>(context).isLogined(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   // 로그인 정보 로딩
