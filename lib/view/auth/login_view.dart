@@ -65,11 +65,23 @@ class _LoginViewState extends State<LoginView> {
                 SizedBox(height: 1.h),
                 InkWell(
                   borderRadius: BorderRadius.circular(8),
-                  onTap: () {
-                    Provider.of<AuthService>(context, listen: false).login(
-                        context: context,
-                        email: idController.text,
-                        password: pwController.text);
+                  onTap: () async {
+                    bool result =
+                        await Provider.of<AuthService>(context, listen: false)
+                            .login(
+                                email: idController.text,
+                                password: pwController.text);
+                    if (result) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('로그인에 성공했습니다.'),
+                        duration: Duration(seconds: 2),
+                      ));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('아이디 또는 비밀번호가 일치하지 않습니다.'),
+                        duration: Duration(seconds: 2),
+                      ));
+                    }
                   },
                   child: Card(
                     margin: EdgeInsets.zero,

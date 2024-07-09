@@ -227,7 +227,7 @@ class _SignupViewState extends State<SignupView> {
                   SizedBox(height: 0.5.h),
                   InkWell(
                     borderRadius: BorderRadius.circular(8),
-                    onTap: () {
+                    onTap: () async {
                       // 필수 값 입력 여부 확인
                       if (idController.text == "" ||
                           pwController.text == "" ||
@@ -261,13 +261,27 @@ class _SignupViewState extends State<SignupView> {
                         return;
                       }
 
-                      Provider.of<AuthService>(context, listen: false).signup(
-                          context: context,
-                          email: idController.text,
-                          password: pwController.text,
-                          nickname: nicknameController.text,
-                          position: positions[selectedPositionIndex],
-                          birthdate: birthDate.toString().split(" ")[0]);
+                      bool result = await Provider.of<AuthService>(context,
+                              listen: false)
+                          .signup(
+                              email: idController.text,
+                              password: pwController.text,
+                              nickname: nicknameController.text,
+                              position: positions[selectedPositionIndex],
+                              birthdate: birthDate.toString().split(" ")[0]);
+                      if (result) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('회원가입을 완료했습니다.'),
+                          duration: Duration(seconds: 2),
+                        ));
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('회원가입에 실패했습니다. 오류가 계속될 경우 문의를 남겨주세요.'),
+                          duration: Duration(seconds: 2),
+                        ));
+                      }
                     },
                     child: Card(
                       margin: EdgeInsets.zero,

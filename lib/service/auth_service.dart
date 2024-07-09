@@ -21,19 +21,15 @@ class AuthService extends ChangeNotifier {
         : prefs.getBool("isLogined")!;
   }
 
-  Future<bool> login(
-      {required BuildContext context,
-      required String email,
-      required String password}) async {
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
     Response response;
     try {
       response = await DioInstance.instance!.dio
           .post("/members/login", data: {"email": email, "password": password});
     } on DioException catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('아이디 또는 비밀번호가 일치하지 않습니다.'),
-        duration: Duration(seconds: 2),
-      ));
       return false;
     }
 
@@ -42,22 +38,17 @@ class AuthService extends ChangeNotifier {
         key: "accessToken", value: response.data["data"]["accessToken"]);
     await prefs.setBool("isLogined", true);
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('로그인에 성공했습니다.'),
-      duration: Duration(seconds: 2),
-    ));
-
     notifyListeners();
     return true;
   }
 
-  Future<bool> signup(
-      {required BuildContext context,
-      required String email,
-      required String password,
-      required String nickname,
-      required String position,
-      required String birthdate}) async {
+  Future<bool> signup({
+    required String email,
+    required String password,
+    required String nickname,
+    required String position,
+    required String birthdate,
+  }) async {
     Response response;
     try {
       response = await DioInstance.instance!.dio.post("/members/signUp", data: {
@@ -69,10 +60,6 @@ class AuthService extends ChangeNotifier {
         "profileImage": "",
       });
     } on DioException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('회원가입에 실패했습니다. 오류가 계속될 경우 문의를 남겨주세요.'),
-        duration: Duration(seconds: 2),
-      ));
       return false;
     }
 
@@ -80,11 +67,6 @@ class AuthService extends ChangeNotifier {
     await secureStorage.write(
         key: "accessToken", value: response.data["data"]["accessToken"]);
     await prefs.setBool("isLogined", true);
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('회원가입을 완료했습니다.'),
-      duration: Duration(seconds: 2),
-    ));
 
     notifyListeners();
     return true;
