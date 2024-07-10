@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:synchronized/extension.dart';
 import 'package:nork/service/auth_service.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -9,14 +10,23 @@ class DioInstance {
   final SharedPreferences prefs;
   final AuthService authService;
 
+  static DioInstance? _instance;
   final _secureStorage = const FlutterSecureStorage();
   static Dio? _dio;
 
-  DioInstance({required this.prefs, required this.authService}) {
+  DioInstance._internal({required this.prefs, required this.authService}) {
     _dio = _buildDio();
   }
 
-  static Dio get dio {
+  factory DioInstance(
+      {required SharedPreferences prefs, required AuthService authService}) {
+    return _instance ??=
+        DioInstance._internal(prefs: prefs, authService: authService);
+  }
+
+  static DioInstance? get instance => _instance;
+
+  Dio get dio {
     if (_dio == null) {
       throw StateError("아직 dio instance가 초기화되지 않았습니다.");
     }
@@ -25,9 +35,8 @@ class DioInstance {
 
   Dio _buildDio() {
     BaseOptions options = BaseOptions(
-      baseUrl: 'localhost:8080', // 기본 URL 설정
+      baseUrl: 'http://172.30.1.78:8080', // 기본 URL 설정
     );
-
     Dio dio = Dio(options);
 
     dio.interceptors.add(InterceptorsWrapper(
@@ -40,7 +49,7 @@ class DioInstance {
           return handler.next(options);
         }
 
-        return synchronized(() async {
+        await synchronized(() async {
           bool? isLogined = prefs.getBool("isLogined");
           String? accessToken = await _secureStorage.read(key: "accessToken");
 
@@ -77,11 +86,12 @@ class DioInstance {
       },
       onError: (DioException e, handler) async {
         // 인증 오류가 발생한 경우 로그아웃 처리
-        if (e.response!.statusCode == 401) {
+        if (e.response?.statusCode == 401) {
           await _secureStorage.deleteAll();
           await prefs.clear();
           authService.notify();
         }
+        handler.next(e);
       },
     ));
 

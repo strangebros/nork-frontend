@@ -8,7 +8,6 @@ class AuthService extends ChangeNotifier {
   final SharedPreferences prefs;
 
   final secureStorage = const FlutterSecureStorage();
-  final dio = DioInstance.dio;
 
   AuthService({required this.prefs});
 
@@ -22,18 +21,15 @@ class AuthService extends ChangeNotifier {
         : prefs.getBool("isLogined")!;
   }
 
-  Future<bool> login(
-      {required BuildContext context,
-      required String email,
-      required String password}) async {
-    Response response = await dio
-        .post("/members/login", data: {email: email, password: password});
-
-    if (response.data["status"] != 200) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('아이디 또는 비밀번호가 일치하지 않습니다.'),
-        duration: Duration(seconds: 2),
-      ));
+  Future<bool> login({
+    required String email,
+    required String password,
+  }) async {
+    Response response;
+    try {
+      response = await DioInstance.instance!.dio
+          .post("/members/login", data: {"email": email, "password": password});
+    } on DioException catch (_) {
       return false;
     }
 
@@ -42,10 +38,35 @@ class AuthService extends ChangeNotifier {
         key: "accessToken", value: response.data["data"]["accessToken"]);
     await prefs.setBool("isLogined", true);
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('로그인에 성공했습니다.'),
-      duration: Duration(seconds: 2),
-    ));
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> signup({
+    required String email,
+    required String password,
+    required String nickname,
+    required String position,
+    required String birthdate,
+  }) async {
+    Response response;
+    try {
+      response = await DioInstance.instance!.dio.post("/members/signUp", data: {
+        "email": email,
+        "password": password,
+        "nickname": nickname,
+        "position": position,
+        "birthdate": birthdate,
+        "profileImage": "",
+      });
+    } on DioException catch (e) {
+      return false;
+    }
+
+    // 성공 시 token 저장
+    await secureStorage.write(
+        key: "accessToken", value: response.data["data"]["accessToken"]);
+    await prefs.setBool("isLogined", true);
 
     notifyListeners();
     return true;
